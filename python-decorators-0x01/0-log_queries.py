@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 import sqlite3
 import functools
+from datetime import datetime
+
 
 # Decorator to log SQL queries
 def log_queries(func):
     @functools.wraps(func)
     def wrapper(query, *args, **kwargs):
-        print(f"Executing SQL Query: {query}")
+        print(f"[{datetime.now()}] Executing SQL Query: {query}")
         return func(query, *args, **kwargs)
     return wrapper
+
 
 @log_queries
 def fetch_all_users(query):
