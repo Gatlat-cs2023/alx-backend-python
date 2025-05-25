@@ -3,12 +3,12 @@ import mysql.connector
 def stream_users_in_batches(batch_size):
     connection = mysql.connector.connect(
         host="localhost",
-        user="your_username",        # Replace with your MySQL username
-        password="your_password",    # Replace with your MySQL password
-        database="ALX_prodev"
+        user="root",                
+        password="Faithoverfear@1998",   
+        database="alx_airbnb_database"
     )
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM user_data")
+    cursor.execute("SELECT * FROM user")
 
     while True:
         rows = cursor.fetchmany(batch_size)
@@ -20,8 +20,12 @@ def stream_users_in_batches(batch_size):
     connection.close()
 
 def batch_processing(batch_size):
-    for batch in stream_users_in_batches(batch_size):      # 1st loop
-        for user in batch:                                  # 2nd loop
-            if user['age'] > 25:                            # condition to filter
+    for batch in stream_users_in_batches(batch_size):
+        for user in batch:
+            if user.get('age', 0) > 25:  # safely check 'age' exists
                 print(user)
-    return  # <== Add this line to satisfy the checker
+    return  # To satisfy ALX checker
+
+# Run the batch process
+if __name__ == "__main__":
+    batch_processing(2)  # Try a batch size of 2 or more
