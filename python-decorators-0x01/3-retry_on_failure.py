@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
 import time
-import sqlite3
 import functools
+import mysql.connector
+from mysql.connector import Error
+
+# Your MySQL config
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'Faithoverfear@1998',
+    'database': 'alx_airbnb_database'
+}
 
 # Decorator to manage DB connection
 def with_db_connection(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        conn = sqlite3.connect('users.db')
+        conn = mysql.connector.connect(**DB_CONFIG)
         try:
             return func(conn, *args, **kwargs)
         finally:
@@ -36,9 +45,10 @@ def retry_on_failure(retries=3, delay=2):
 @retry_on_failure(retries=3, delay=1)
 def fetch_users_with_retry(conn):
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM user")
     return cursor.fetchall()
 
-# Attempt to fetch users with automatic retry on failure
+# Fetch and print users
 users = fetch_users_with_retry()
-print(users)
+for u in users:
+    print(u)
