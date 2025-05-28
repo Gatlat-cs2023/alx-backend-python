@@ -17,3 +17,8 @@ class GithubOrgClient:
     def _public_repos_url(self):
         """Returns the 'repos_url' from the org data"""
         return self.org().get("repos_url")
+
+    def public_repos(self):
+        """Returns list of public repository names"""
+        repos = get_json(self._public_repos_url)
+        return [repo["name"] for repo in repos]
