@@ -51,6 +51,22 @@ class TestGithubOrgClient(TestCase):
             )
             mock_url.assert_called_once()
 
+    @parameterized.expand([
+        (
+            {"license": {"key": "my_license"}},  # repo
+            "my_license",                        # license_key
+            True                                  # expected
+        ),
+        (
+            {"license": {"key": "other_license"}},
+            "my_license",
+            False
+        )
+    ])
+    def test_has_license(self, repo, license_key, expected):
+        """Test that has_license correctly detects license matches."""
+        client = GithubOrgClient("testorg")
+        self.assertEqual(client.has_license(repo, license_key), expected)
 
 if __name__ == "__main__":
     unittest.main()
