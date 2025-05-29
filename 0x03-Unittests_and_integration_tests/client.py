@@ -18,10 +18,15 @@ class GithubOrgClient:
         """Returns the 'repos_url' from the org data"""
         return self.org().get("repos_url")
 
-    def public_repos(self):
-        """Returns list of public repository names"""
+    def public_repos(self, license_key=None):
+        """Returns list of public repository names, optionally filtered by license."""
         repos = get_json(self._public_repos_url)
-        return [repo["name"] for repo in repos]
+        if license_key is None:
+            return [repo["name"] for repo in repos]
+        return [
+            repo["name"] for repo in repos
+            if self.has_license(repo, license_key)
+        ]
 
     def has_license(self, repo, license_key):
         """Check if repo has the given license key."""
