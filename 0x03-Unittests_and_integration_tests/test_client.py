@@ -9,6 +9,7 @@ from client import GithubOrgClient
 
 
 class TestGithubOrgClient(TestCase):
+    """Unit tests for the GithubOrgClient class."""
 
     @parameterized.expand([
         ("case_google", "google", {"login": "google", "id": 1}),
@@ -32,7 +33,11 @@ class TestGithubOrgClient(TestCase):
             {"name": "repo3"}
         ]
 
-        with patch.object(GithubOrgClient, "_public_repos_url", new_callable=PropertyMock) as mock_url:
+        with patch.object(
+            GithubOrgClient,
+            "_public_repos_url",
+            new_callable=PropertyMock
+        ) as mock_url:
             mock_url.return_value = (
                 "https://api.github.com/orgs/testorg/repos"
             )
