@@ -13,12 +13,12 @@ from unittest.mock import patch, PropertyMock
 
 class TestGithubOrgClient(TestCase):
 
-    @patch("client.get_json")
     @parameterized.expand([
-        ("google", {"login": "google", "id": 1}),
-        ("abc", {"login": "abc", "id": 2})
+        ("case_google", "google", {"login": "google", "id": 1}),
+        ("case_abc", "abc", {"login": "abc", "id": 2})
     ])
-    def test_org(self, org_name, mock_response, mock_get_json):
+    @patch("client.get_json")
+    def test_org(self, mock_get_json, org_name, mock_response):
         mock_get_json.return_value = mock_response
 
         client = GithubOrgClient(org_name)
