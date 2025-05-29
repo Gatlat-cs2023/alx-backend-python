@@ -1,4 +1,4 @@
-'''
+
 #!/usr/bin/env python3
 
 import sys
@@ -58,7 +58,6 @@ class TestGithubOrgClient(TestCase):
 if __name__ == "__main__":
     unittest.main()
 '''
-
 #!/usr/bin/env python3
 """Unit tests for the GithubOrgClient class in the client module."""
 
@@ -121,3 +120,4 @@ class TestGithubOrgClient(TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+'''
