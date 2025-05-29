@@ -40,6 +40,8 @@ class TestGetJson(unittest.TestCase):
     def test_get_json(self, test_url, test_payload):
         """
         Test get_json:
+        """
+        """
         makes correct GET request and returns expected payload.
         """
 
