@@ -9,6 +9,7 @@ from client import GithubOrgClient
 import requests
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 from parameterized import parameterized_class
+from unittest.mock import patch
 
 class TestGithubOrgClient(TestCase):
     """Unit tests for the GithubOrgClient class."""
@@ -70,15 +71,14 @@ class TestGithubOrgClient(TestCase):
         client = GithubOrgClient("testorg")
         self.assertEqual(client.has_license(repo, license_key), expected)
 
-    @parameterized_class([
-        {
-            "org_payload": org_payload,  # reuse the same
-            "repos_payload": repos_payload,
-            "expected_repos": expected_repos,
-            "apache2_repos": apache2_repos
-        }
-    ])
-
+@parameterized_class([
+    {
+        "org_payload": org_payload,  # reuse the same
+        "repos_payload": repos_payload,
+        "expected_repos": expected_repos,
+        "apache2_repos": apache2_repos
+    }
+])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient.public_repos using fixtures."""
 
@@ -111,6 +111,12 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     def tearDownClass(cls):
         """Stop patching requests.get."""
         cls.get_patcher.stop()
+        
+    def setUp(self):
+        self.org_payload = self.__class__.org_payload
+        self.repos_payload = self.__class__.repos_payload
+        self.expected_repos = self.__class__.expected_repos
+        self.apache2_repos = self.__class__.apache2_repos
 
     def test_public_repos(self):
         """Test that public_repos returns expected repo names."""
