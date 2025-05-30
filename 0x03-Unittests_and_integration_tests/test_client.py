@@ -70,10 +70,6 @@ class TestGithubOrgClient(TestCase):
         client = GithubOrgClient("testorg")
         self.assertEqual(client.has_license(repo, license_key), expected)
 
-
-class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """Integration tests for GithubOrgClient.public_repos using fixtures."""
-
     @parameterized_class([
         {
             "org_payload": org_payload,  # reuse the same
@@ -82,6 +78,9 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
             "apache2_repos": apache2_repos
         }
     ])
+
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """Integration tests for GithubOrgClient.public_repos using fixtures."""
 
     @classmethod
     def setUpClass(cls):
