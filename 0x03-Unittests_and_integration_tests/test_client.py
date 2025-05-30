@@ -10,7 +10,6 @@ import requests
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 from parameterized import parameterized_class
 
-
 class TestGithubOrgClient(TestCase):
     """Unit tests for the GithubOrgClient class."""
 
