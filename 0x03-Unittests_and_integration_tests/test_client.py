@@ -76,11 +76,18 @@ class TestGithubOrgClient(TestCase):
         "repos_payload": repos_payload,
         "expected_repos": expected_repos,
         "apache2_repos": apache2_repos
+    },
+    {
+        "org_payload": org_payload,  # reuse the same
+        "repos_payload": repos_payload,
+        "expected_repos": expected_repos,
+        "apache2_repos": apache2_repos
     }
 ])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient.public_repos using fixtures."""
-
+    __test__ = True
+    
     @classmethod
     def setUpClass(cls):
         """Patch requests.get before tests run, use side_effect to provide different responses."""
