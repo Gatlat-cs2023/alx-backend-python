@@ -9,7 +9,7 @@ from client import GithubOrgClient
 import requests
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 from parameterized import parameterized_class
-from unittest.mock import patch
+
 
 class TestGithubOrgClient(TestCase):
     """Unit tests for the GithubOrgClient class."""
@@ -73,63 +73,53 @@ class TestGithubOrgClient(TestCase):
 
 @parameterized_class([
     {
-        "org_payload": org_payload,  # reuse the same
+        "org_payload": org_payload,
         "repos_payload": repos_payload,
         "expected_repos": expected_repos,
         "apache2_repos": apache2_repos
     }
 ])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """Integration tests for GithubOrgClient.public_repos using fixtures."""
+    """ Integration tests for GithubOrgClient.public_repos """
 
     @classmethod
     def setUpClass(cls):
-        """Patch requests.get before tests run, use side_effect to provide different responses."""
-        cls.get_patcher = patch('requests.get')
-        cls.mock_get = cls.get_patcher.start()
+        """ Start patching requests.get with controlled fixtures. """
+        cls.get_patcher = patch('client.requests.get')
 
-        def get_side_effect(url, *args, **kwargs):
-            """Return different payloads depending on the URL."""
-            if url == f"https://api.github.com/orgs/{cls.org_payload['login']}":
-                # org endpoint returns org_payload
-                mock_response = unittest.mock.Mock()
+        mock_get = cls.get_patcher.start()
+
+        # Define side_effect for requests.get().json()
+        def side_effect(url):
+            mock_response = unittest.mock.Mock()
+            mock_response.raise_for_status = unittest.mock.Mock()
+
+            if url == "https://api.github.com/orgs/google":
                 mock_response.json.return_value = cls.org_payload
-                mock_response.status_code = 200
-                return mock_response
-            elif url == cls.org_payload['repos_url']:
-                # repos endpoint returns repos_payload
-                mock_response = unittest.mock.Mock()
+            elif url == "https://api.github.com/orgs/google/repos":
                 mock_response.json.return_value = cls.repos_payload
-                mock_response.status_code = 200
-                return mock_response
             else:
-                raise ValueError(f"Unmocked URL called: {url}")
+                mock_response.json.return_value = {}
 
-        cls.mock_get.side_effect = get_side_effect
+            return mock_response
+
+
+        mock_get.side_effect = side_effect
 
     @classmethod
     def tearDownClass(cls):
-        """Stop patching requests.get."""
+        """ Stop patcher. """
         cls.get_patcher.stop()
-        
-    def setUp(self):
-        self.org_payload = self.__class__.org_payload
-        self.repos_payload = self.__class__.repos_payload
-        self.expected_repos = self.__class__.expected_repos
-        self.apache2_repos = self.__class__.apache2_repos
 
     def test_public_repos(self):
-        """Test that public_repos returns expected repo names."""
-        client = GithubOrgClient(self.org_payload['login'])
-        repos = client.public_repos()
-        self.assertEqual(repos, self.expected_repos)
+        """ Test that public_repos returns expected repos. """
+        client = GithubOrgClient("google")
+        self.assertEqual(client.public_repos(), self.expected_repos)
 
     def test_public_repos_with_license(self):
-        """Test public_repos returns repos with apache2 license correctly filtered."""
-        client = GithubOrgClient(self.org_payload['login'])
-        apache2_repos = client.public_repos(license_key="apache-2.0")
-        self.assertEqual(apache2_repos, self.apache2_repos)
-
+        """ Test that public_repos with license filter returns correct repos. """
+        client = GithubOrgClient("google")
+        self.assertEqual(client.public_repos(license_key="apache-2.0"), self.apache2_repos)
 
 if __name__ == "__main__":
     unittest.main()
