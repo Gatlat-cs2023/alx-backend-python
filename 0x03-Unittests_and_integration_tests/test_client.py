@@ -6,9 +6,9 @@ from unittest import TestCase
 from unittest.mock import patch, PropertyMock
 from parameterized import parameterized
 from client import GithubOrgClient
-from parameterized import parameterized_class
 import requests
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
+from parameterized import parameterized_class
 
 class TestGithubOrgClient(TestCase):
     """Unit tests for the GithubOrgClient class."""
