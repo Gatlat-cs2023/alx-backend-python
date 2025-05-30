@@ -70,24 +70,19 @@ class TestGithubOrgClient(TestCase):
         client = GithubOrgClient("testorg")
         self.assertEqual(client.has_license(repo, license_key), expected)
 
-@parameterized_class([
-    {
-        "org_payload": org_payload,
-        "repos_payload": repos_payload,
-        "expected_repos": expected_repos,
-        "apache2_repos": apache2_repos
-    },
-    {
-        "org_payload": org_payload,  # reuse the same
-        "repos_payload": repos_payload,
-        "expected_repos": expected_repos,
-        "apache2_repos": apache2_repos
-    }
-])
+
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient.public_repos using fixtures."""
-    __test__ = True
-    
+
+    @parameterized_class([
+        {
+            "org_payload": org_payload,  # reuse the same
+            "repos_payload": repos_payload,
+            "expected_repos": expected_repos,
+            "apache2_repos": apache2_repos
+        }
+    ])
+
     @classmethod
     def setUpClass(cls):
         """Patch requests.get before tests run, use side_effect to provide different responses."""
