@@ -1,7 +1,8 @@
 from django.contrib import admin
-from django.urls import path, include  # Import include to include app URLs
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('chats.urls')),  # Include the URLs from the chats app
+    path('api/', include('chats.urls')),
+    path('api-auth/', include('rest_framework.urls')),  # <-- Add this line
 ]
