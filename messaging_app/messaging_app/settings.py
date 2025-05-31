@@ -152,3 +152,6 @@ REST_FRAMEWORK = {
     ],
 }
 
+AUTH_USER_MODEL = 'chats.User'  # Specify the custom user model if you have one
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
