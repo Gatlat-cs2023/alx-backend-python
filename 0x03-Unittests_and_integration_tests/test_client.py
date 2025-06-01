@@ -2,9 +2,11 @@
 """Unit tests for the GithubOrgClient class."""
 
 import unittest
-from unittest import TestCase
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch, Mock
 from parameterized import parameterized, parameterized_class
+from unittest import TestCase
+from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
+from unittest.mock import patch, PropertyMock
 from client import GithubOrgClient
 
 # Inline fixtures here as ALX expects everything in one file
@@ -24,17 +26,9 @@ expected_repos = ["repo1", "repo2", "repo3"]
 
 apache2_repos = ["repo1", "repo3"]
 
-
-#!/usr/bin/env python3
 """
 Unit tests for GithubOrgClient
 """
-import unittest
-from unittest.mock import patch
-from parameterized import parameterized
-
-from client import GithubOrgClient
-
 
 class TestGithubOrgClient(unittest.TestCase):
     """Test case for GithubOrgClient.org"""
@@ -58,17 +52,9 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(result, expected_payload)
         mock_get_json.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
 
-
-#!/usr/bin/env python3
 """
 Integration test for GithubOrgClient.public_repos
 """
-import unittest
-from unittest.mock import patch, Mock
-from parameterized import parameterized_class
-
-from client import GithubOrgClient
-from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 
 # Define inline fixtures
 org_payload = {
