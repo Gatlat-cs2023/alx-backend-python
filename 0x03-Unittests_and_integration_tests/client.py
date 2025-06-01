@@ -32,3 +32,4 @@ class GithubOrgClient:
         """Check if repo has the given license key."""
         return repo.get("license", {}).get("key") == license_key
 
+
