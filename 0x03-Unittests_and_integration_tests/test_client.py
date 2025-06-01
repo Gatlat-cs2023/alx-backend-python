@@ -46,15 +46,22 @@ class TestGithubOrgClient(unittest.TestCase):
 
         # Act: Create client and call .org
         client = GithubOrgClient(org_name)
-        result = client.org()  # Call the method to get dict
+        result = client.org
 
         # Assert: Check if return matches mock
         self.assertEqual(result, expected_payload)
         mock_get_json.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
 
+
+#!/usr/bin/env python3
 """
 Integration test for GithubOrgClient.public_repos
 """
+import unittest
+from unittest.mock import patch, Mock
+from parameterized import parameterized_class
+
+from client import GithubOrgClient
 
 # Define inline fixtures
 org_payload = {
