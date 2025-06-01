@@ -46,7 +46,7 @@ class TestGithubOrgClient(unittest.TestCase):
 
         # Act: Create client and call .org
         client = GithubOrgClient(org_name)
-        result = client.org
+        result = client.org()  # Call the method to get dict
 
         # Assert: Check if return matches mock
         self.assertEqual(result, expected_payload)
