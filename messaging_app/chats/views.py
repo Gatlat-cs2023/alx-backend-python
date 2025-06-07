@@ -8,6 +8,9 @@ from .permissions import IsParticipantOfConversation
 class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsParticipantOfConversation]
+    pagination_class = MessagePagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MessageFilter
 
     def get_queryset(self):
         user = self.request.user
