@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied  # Add this import
 from .models import Message, Conversation
 from .serializers import MessageSerializer
 from .permissions import IsParticipantOfConversation
@@ -15,20 +16,18 @@ class MessageViewSet(viewsets.ModelViewSet):
         # Get conversation_id from URL query parameters
         conversation_id = self.request.query_params.get('conversation_id')
         if not conversation_id:
-            # Optionally: return empty queryset or all messages user participates in
+            # Return empty queryset if no conversation_id provided
             return Message.objects.none()
 
-        # Filter messages by conversation_id and user participation
         try:
             conversation = Conversation.objects.get(id=conversation_id)
         except Conversation.DoesNotExist:
-            # Return empty queryset if no conversation found
-            return Message.objects.none()
+            # Raise 403 Forbidden if conversation does not exist
+            raise PermissionDenied(detail="Conversation does not exist or access denied.")
 
-        # Check if user is participant, else empty queryset (permissions also enforce 403)
         if user not in conversation.participants.all():
-            # Returning empty queryset here, permission class will raise 403 later if needed
-            return Message.objects.none()
+            # Explicitly raise 403 Forbidden if user not participant
+            raise PermissionDenied(detail="You do not have permission to access this conversation.")
 
         # Return messages in that conversation
         return Message.objects.filter(conversation=conversation)
