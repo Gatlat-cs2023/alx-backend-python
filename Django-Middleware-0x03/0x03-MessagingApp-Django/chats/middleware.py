@@ -20,7 +20,6 @@ class RequestLoggingMiddleware:
 
 # Django-Middleware-0x03/chats/middleware.py
 
-
 class RestrictAccessByTimeMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
