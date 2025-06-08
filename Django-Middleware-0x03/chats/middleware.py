@@ -1,6 +1,9 @@
 import logging
 from datetime import datetime
 from django.http import HttpResponseForbidden
+import time
+from collections import defaultdict
+from django.http import HttpResponseTooManyRequests
 
 class RequestLoggingMiddleware:
     def __init__(self, get_response):
@@ -32,3 +35,37 @@ class RestrictAccessByTimeMiddleware:
             return HttpResponseForbidden("Access to chat is only allowed between 6 PM and 9 PM.")
 
         return self.get_response(request)
+# Django-Middleware-0x03/chats/middleware.py
+
+class OffensiveLanguageMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+        # Tracks IP -> [timestamps]
+        self.message_log = defaultdict(list)
+
+    def __call__(self, request):
+        if request.method == "POST":
+            ip = self.get_client_ip(request)
+            current_time = time.time()
+
+            # Remove timestamps older than 60 seconds
+            self.message_log[ip] = [
+                t for t in self.message_log[ip] if current_time - t < 60
+            ]
+
+            if len(self.message_log[ip]) >= 5:
+                return HttpResponseTooManyRequests(
+                    "Rate limit exceeded. Max 5 messages per minute."
+                )
+
+            self.message_log[ip].append(current_time)
+
+        return self.get_response(request)
+
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
