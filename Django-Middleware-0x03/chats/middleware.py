@@ -4,6 +4,7 @@ from django.http import HttpResponseForbidden
 import time
 from collections import defaultdict
 from django.http import HttpResponseTooManyRequests
+from django.http import HttpResponseForbidden
 
 class RequestLoggingMiddleware:
     def __init__(self, get_response):
@@ -69,3 +70,21 @@ class OffensiveLanguageMiddleware:
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip
+# Django-Middleware-0x03/chats/middleware.py
+
+class RolePermissionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        user = request.user
+
+        # Skip if user is not authenticated (optional)
+        if not user.is_authenticated:
+            return HttpResponseForbidden("Authentication required.")
+
+        # Only allow admins and moderators
+        if not user.is_superuser and not user.groups.filter(name__in=["moderator"]).exists():
+            return HttpResponseForbidden("Access denied. Admin or moderator role required.")
+
+        return self.get_response(request)
