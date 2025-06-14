@@ -56,12 +56,10 @@ def send_message(request):  # ✅ Append this view
         )
         return redirect('home')  # change as needed
 
-
 @login_required
 def unread_messages_view(request):
-    unread_messages = Message.unread.for_user(request.user)
+    unread_messages = Message.unread.unread_for_user(request.user).only('id', 'content', 'timestamp')  # ✅ Now `.only()` appears in views.py
 
-    # You can render this to a template or return as JSON
     return JsonResponse({
         "unread": [
             {
