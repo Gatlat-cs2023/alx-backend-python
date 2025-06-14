@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from .models import Message
 from .utils import get_thread  # if you placed it in a utils file
+from django.views.decorators.cache import cache_page
 
 # messaging/models.py
 from django.contrib.auth.models import User
@@ -70,3 +71,10 @@ def unread_messages_view(request):
             for msg in unread_messages
         ]
     })
+
+
+@cache_page(60)  # cache timeout in seconds
+@login_required
+def conversation_messages_view(request, conversation_id):
+    messages = Message.objects.filter(conversation_id=conversation_id).order_by('timestamp')
+    # your code to render messages or return JsonResponse
