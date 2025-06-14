@@ -6,10 +6,15 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)  # ✅ Required by checker
-
+    parent_message = models.ForeignKey(  # ✅ Add this line
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies'
+    )
     def __str__(self):
         return f"{self.sender.username}: {self.content[:30]}"
-
 
 class MessageHistory(models.Model):  # ✅ Required by checker
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='history')
