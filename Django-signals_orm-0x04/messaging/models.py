@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -14,6 +15,11 @@ class Message(models.Model):
         blank=True,
         related_name='replies'
     )
+    read = models.BooleanField(default=False)  # ✅ Add this line
+
+    objects = models.Manager()  # Default manager
+    unread = UnreadMessagesManager()  # ✅ Custom manager for unread messages
+
     def __str__(self):
         return f"{self.sender.username}: {self.content[:30]}"
 
@@ -25,3 +31,7 @@ class MessageHistory(models.Model):  # ✅ Required by checker
 
     def __str__(self):
         return f"Edit of Message {self.message.id} at {self.edited_at}"
+
+class UnreadMessagesManager(models.Manager):
+    def for_user(self, user):
+        return self.filter(receiver=user, read=False).only('id', 'content', 'timestamp', 'sender_id')

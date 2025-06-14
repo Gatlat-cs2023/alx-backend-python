@@ -55,3 +55,20 @@ def send_message(request):  # ✅ Append this view
             parent_message=parent_message
         )
         return redirect('home')  # change as needed
+
+
+@login_required
+def unread_messages_view(request):
+    unread_messages = Message.unread.for_user(request.user)
+
+    # You can render this to a template or return as JSON
+    return JsonResponse({
+        "unread": [
+            {
+                "id": msg.id,
+                "content": msg.content,
+                "timestamp": msg.timestamp
+            }
+            for msg in unread_messages
+        ]
+    })
