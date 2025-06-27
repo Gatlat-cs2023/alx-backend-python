@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# kubctl-0x01 - ALX Kubernetes Scaling Script
+
+# Scale the deployment to 3 replicas
+echo "Scaling django-messaging-app deployment to 3 replicas..."
+kubectl scale deployment django-messaging-app --replicas=3
+
+# Verify scaling
+echo -e "\nVerifying pod status..."
+kubectl get pods -l app=django-messaging
+
+# Wait for all pods to be ready
+echo -e "\nWaiting for all pods to be ready..."
+kubectl wait --for=condition=Ready pods -l app=django-messaging --timeout=120s
+
+# Get service details for load testing
+SERVICE_IP=$(kubectl get service django-messaging-service -o jsonpath='{.spec.clusterIP}')
+SERVICE_PORT=$(kubectl get service django-messaging-service -o jsonpath='{.spec.ports[0].port}')
+
+# Perform load testing if wrk is installed
+if command -v wrk &> /dev/null; then
+    echo -e "\nStarting load testing (10 connections, 10 seconds)..."
+    wrk -t2 -c10 -d10s "http://${SERVICE_IP}:${SERVICE_PORT}"
+else
+    echo -e "\nwrk not installed. Install with:"
+    echo "sudo apt install wrk"
+fi
+
+# Monitor resource usage
+echo -e "\nMonitoring resource usage:"
+kubectl top pods -l app=django-messaging
+
+echo -e "\nScaling test complete!"
