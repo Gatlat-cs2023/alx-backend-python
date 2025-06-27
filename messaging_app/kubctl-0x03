@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# kubctl-0x03 - Rolling Update Script
+
+# Get service URL for testing
+SERVICE_IP=$(kubectl get service django-service -o jsonpath='{.spec.clusterIP}')
+SERVICE_PORT=8000
+TEST_URL="http://$SERVICE_IP:$SERVICE_PORT/health/"
+
+# Start continuous curl requests in background
+echo "Starting continuous requests to $TEST_URL"
+for i in {1..60}; do
+  curl -s -o /dev/null -w "Request $i: %{http_code}\n" $TEST_URL &
+  sleep 1
+done > curl_output.txt &
+
+# Apply the rolling update
+echo "Applying rolling update to version 2.0..."
+kubectl apply -f blue_deployment.yaml
+
+# Monitor rollout progress
+echo "Monitoring rollout status..."
+kubectl rollout status deployment/django-blue --timeout=180s
+
+# Verify update completion
+echo -e "\nVerifying pods:"
+kubectl get pods -l app=django-messaging
+
+# Check for any failed requests
+FAILED_REQUESTS=$(grep -v "200" curl_output.txt | wc -l)
+echo -e "\nTesting complete. Failed requests during update: $FAILED_REQUESTS"
+
+# Cleanup
+pkill -P $$ curl 2>/dev/null
+rm curl_output.txt
+
+echo "Rolling update complete!"
