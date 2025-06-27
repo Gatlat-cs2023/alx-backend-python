@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# kurbeScript - ALX Kubernetes setup script
+
+# Function to check if a command exists
+command_exists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+# Install Minikube if not exists
+if ! command_exists minikube; then
+  echo "Installing Minikube..."
+  
+  # Install dependencies
+  sudo apt-get update -qq
+  sudo apt-get install -qq -y curl apt-transport-https
+  
+  # Install kubectl
+  if ! command_exists kubectl; then
+    echo "Installing kubectl..."
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  fi
+
+  # Install Minikube
+  curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+  sudo install minikube-linux-amd64 /usr/local/bin/minikube
+  rm minikube-linux-amd64
+  
+  echo "Minikube installed successfully"
+else
+  echo "Minikube is already installed"
+fi
+
+# Start Minikube cluster
+echo "Starting Kubernetes cluster..."
+minikube start --driver=docker
+
+# Verify cluster is running
+echo "Verifying cluster status..."
+kubectl cluster-info
+
+# Get available pods
+echo "Retrieving available pods in all namespaces..."
+kubectl get pods --all-namespaces
+
+echo "Kubernetes local cluster setup complete!"
