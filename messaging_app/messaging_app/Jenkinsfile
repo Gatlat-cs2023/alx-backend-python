@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+    
+    environment {
+        PYTHON = 'python3'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git(
+                    url: 'https://github.com/alx-backend-python.git',
+                    credentialsId: 'your-github-credentials-id',
+                    branch: 'main',
+                    changelog: true,
+                    poll: true
+                )
+            }
+        }
+        
+        stage('Set Up Python') {
+            steps {
+                sh 'python -m pip install --upgrade pip'
+                sh 'pip install -r requirements.txt'
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                sh 'pytest --junitxml=test-results.xml'
+            }
+            post {
+                always {
+                    junit 'test-results.xml'
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline completed - cleaning up'
+        }
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
