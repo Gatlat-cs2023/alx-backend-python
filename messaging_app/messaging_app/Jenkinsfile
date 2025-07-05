@@ -13,20 +13,11 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/main']],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/Gatlat-cs2023/alx-backend-python',
-                        credentialsId: 'github-ssh-key'
-                    ]],
-                    doGenerateSubmoduleConfigurations: false,
-                    changelog: true,
-                    poll: true
-                ])
+                git branch: 'main',
+                    credentialsId: 'github-ssh-key',
+                    url: 'https://github.com/Gatlat-cs2023/alx-backend-python'
             }
-        }
-        
+        }    
         stage('Install Dependencies') {
             steps {
                 dir(env.PROJECT_DIR) {  // Added directory scope
