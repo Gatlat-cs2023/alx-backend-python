@@ -2,15 +2,21 @@ pipeline {
     agent any
     
     environment {
+        PROJECT_DIR = 'messaging_app'
         PYTHON = 'python3'
+        PIP = 'pip3'
+        DOCKER_IMAGE = 'your-dockerhub-username/messaging-app'  // Update this
+        DOCKER_TAG = "${env.BUILD_NUMBER}"
+        DOCKER_CREDS = credentials('dockerhub-creds')  // Create in Jenkins credentials
     }
     
     stages {
-        stage('Checkout') {
+        // Your existing stages (improved)
+        stage('Checkout Code') {
             steps {
                 git(
-                    url: 'https://github.com/alx-backend-python.git',
-                    credentialsId: 'your-github-credentials-id',
+                    url: 'https://github.com/Gatlat-cs2023/alx-backend-python',
+                    credentialsId: 'github-ssh-key',  // Keep your existing ID
                     branch: 'main',
                     changelog: true,
                     poll: true
@@ -18,20 +24,52 @@ pipeline {
             }
         }
         
-        stage('Set Up Python') {
+        stage('Install Dependencies') {
             steps {
-                sh 'python -m pip install --upgrade pip'
-                sh 'pip install -r requirements.txt'
+                dir(env.PROJECT_DIR) {  // Added directory scope
+                    sh "${PIP} install --upgrade pip"
+                    sh "${PIP} install -r requirements.txt"
+                }
             }
         }
         
         stage('Run Tests') {
             steps {
-                sh 'pytest --junitxml=test-results.xml'
+                dir(env.PROJECT_DIR) {  // Added directory scope
+                    sh "${PYTHON} -m pytest --junitxml=test-results.xml"
+                }
             }
             post {
                 always {
-                    junit 'test-results.xml'
+                    junit "${env.PROJECT_DIR}/test-results.xml"  // Updated path
+                }
+            }
+        }
+        
+        // New Docker stages
+        stage('Build Docker Image') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
+            steps {
+                dir(env.PROJECT_DIR) {
+                    script {
+                        docker.build("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}")
+                    }
+                }
+            }
+        }
+        
+        stage('Push to Docker Hub') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', env.DOCKER_CREDS) {
+                        docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push()
+                        docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push('latest')
+                    }
                 }
             }
         }
@@ -42,7 +80,7 @@ pipeline {
             echo 'Pipeline completed - cleaning up'
         }
         success {
-            echo 'Pipeline succeeded!'
+            echo "Pipeline succeeded! Docker image: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
         }
         failure {
             echo 'Pipeline failed!'
