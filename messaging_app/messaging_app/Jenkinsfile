@@ -11,16 +11,19 @@ pipeline {
     }
     
     stages {
-        // Your existing stages (improved)
         stage('Checkout Code') {
             steps {
-                git(
-                    url: 'https://github.com/Gatlat-cs2023/alx-backend-python',
-                    credentialsId: 'github-ssh-key',  // Keep your existing ID
-                    branch: 'main',
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Gatlat-cs2023/alx-backend-python',
+                        credentialsId: 'github-ssh-key'
+                    ]],
+                    doGenerateSubmoduleConfigurations: false,
                     changelog: true,
                     poll: true
-                )
+                ])
             }
         }
         
