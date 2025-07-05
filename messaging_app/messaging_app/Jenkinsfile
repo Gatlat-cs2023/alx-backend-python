@@ -20,9 +20,9 @@ pipeline {
         }    
         stage('Install Dependencies') {
             steps {
-                dir(env.PROJECT_DIR) {  // Added directory scope
-                    sh "${PIP} install --upgrade pip"
-                    sh "${PIP} install -r requirements.txt"
+                dir('messaging_app') {
+                    sh 'pip3 install --upgrade pip'
+                    sh 'pip3 install -r requirements.txt'
                 }
             }
         }
