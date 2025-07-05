@@ -3,15 +3,17 @@ pipeline {
     
     environment {
         PROJECT_DIR = 'messaging_app'
+        PYTHON = 'python3'
+        PIP = 'pip3'
     }
     
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 git(
-                    url: 'https://github.com/alx-backend-python.git',
-                    credentialsId: 'YOUR_GITHUB_CREDENTIALS_ID',  // Replace with your actual credentials ID
-                    branch: 'main',
+                    url: 'https://github.com/Gatlat-cs2023/alx-backend-python',
+                    credentialsId: 'github-ssh-key', // Replace with your credential ID
+                    branch: 'main',  // This was missing
                     changelog: true,
                     poll: true
                 )
@@ -21,8 +23,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir(env.PROJECT_DIR) {
-                    sh 'python3 -m pip install --upgrade pip'
-                    sh 'pip3 install -r requirements.txt'
+                    sh "${PIP} install --upgrade pip"
+                    sh "${PIP} install -r requirements.txt"
                 }
             }
         }
@@ -30,7 +32,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 dir(env.PROJECT_DIR) {
-                    sh 'pytest --junitxml=test-results.xml'
+                    sh "${PYTHON} -m pytest --junitxml=test-results.xml"
                 }
             }
             post {
@@ -38,12 +40,6 @@ pipeline {
                     junit "${env.PROJECT_DIR}/test-results.xml"
                 }
             }
-        }
-    }
-    
-    post {
-        always {
-            echo 'Pipeline completed - cleaning up'
         }
     }
 }
